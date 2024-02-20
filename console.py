@@ -243,7 +243,6 @@ class HBNBCommand(cmd.Cmd):
             print("list ready")
             # for k, v in storage._FileStorage__objects.items():
             #     print_list.append(str(v))
-        
         # print_list = [value for value in print_list.values()]
 
         print(print_list)

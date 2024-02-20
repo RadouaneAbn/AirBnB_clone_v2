@@ -29,7 +29,7 @@ class BaseModel:
             del kwargs['__class__']
             for key, value in kwargs:
                 setattr(self, key, value)
-    
+
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
