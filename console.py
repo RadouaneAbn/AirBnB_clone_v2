@@ -133,7 +133,7 @@ class HBNBCommand(cmd.Cmd):
 
                 key, value = arg.split('=')
                 value = value.replace('_', ' ')
-                if not re.match(r"^\".*\"$|^-?\d*$|^-?\d*.\d*$", value):
+                if not re.match(r"^\".*\"$|^-?\d*\.\d*$|^-?\d*$", value):
                     continue
 
                 value = value.strip('"')
@@ -143,9 +143,12 @@ class HBNBCommand(cmd.Cmd):
                     pass
                 setattr(new_instance, key, value)
 
+        # print("step create: ")
+        # print(new_instance)
+        storage.new(new_instance)
         storage.save()
         print(new_instance.id)
-        storage.save()
+        # storage.save()
 
     def help_create(self):
         """ Help information for the create method """
