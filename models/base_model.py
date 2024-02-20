@@ -4,6 +4,7 @@ import uuid
 from datetime import datetime
 from sqlalchemy import Column, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
+from os import environ
 
 Base = declarative_base()
 
@@ -22,18 +23,30 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
-            kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                     '%Y-%m-%dT%H:%M:%S.%f')
-            del kwargs['__class__']
-            for key, value in kwargs:
+            # print("kwargs: \n", kwargs)
+            if not environ.get('HBNB_TYPE_STORAGE') == "db":
+                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
+                                                        '%Y-%m-%dT%H:%M:%S.%f')
+                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
+                                                        '%Y-%m-%dT%H:%M:%S.%f')
+                del kwargs['__class__']
+
+            for key, value in kwargs.items():
                 setattr(self, key, value)
 
     def __str__(self):
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
         return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
+    
+    def __repr__(self):
+        """Returns a string representation of the instance"""
+        str_rep = self.__dict__
+        # print("inst dict is : \n", self.__dict__)
+        if "_sa_instance_state" in str_rep.keys():
+            del(str_rep["_sa_instance_state"])
+        cls = (str(type(self)).split('.')[-1]).split('\'')[0]
+        return '[{}] ({}) {}'.format(cls, self.id, str_rep)
 
     def save(self):
         """Updates updated_at with current time when instance is changed"""

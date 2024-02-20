@@ -35,7 +35,6 @@ class DBStorage:
             for table_name in table_names:
                 table = Base.metadata.tables[table_name]
                 table.drop(self.__engine)
-                
 
     def reload(self):
         from models.base_model import BaseModel
@@ -45,8 +44,6 @@ class DBStorage:
         session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
-
-
 
     def new(self, obj):
         attrs = obj.to_dict()
@@ -65,39 +62,51 @@ class DBStorage:
 
     def all(self, cls=None):
         classes = {
-            "State": State.__tablename__,
-            "City": City.__tablename__,
-            "User": User.__tablename__,
-            "Place": Place.__tablename__,
-            # "Review": Review.__tablename__,
-            # "Amenity": Amenity.__tablename__,
+            "State": State,
+            "City": City,
+            "User": User,
+            "Place": Place,
+            # "Review": Review,
+            # "Amenity": Amenity,
         }
         dictionary = {}
-        print("cls :", cls)
+        inst_attr = {}
+        # print("cls :", cls)
         
         if cls:
-            table = Base.metadata.tables[classes[cls]]
+            table = Base.metadata.tables[classes[cls].__tablename__]
             for inst in self.__session.query(table).all():
-                print(inst)
-                key, value = f"{cls}.{inst.id}", inst
-                # print(key, value)
-                dictionary[key] = value
+                # print("inst is : \n", inst)
+                inst_attr = {
+                    column.name: getattr(inst, column.name)
+                    for column in table.columns if not hasattr(inst, "_sa_instance_state")
+                }
+                # print(inst_attr)
+                new_inst = classes[cls](**inst_attr)
+                # new_inst.__dict__.update(inst_attr)
+                # print(new_inst.__dict__)
+                # print("new inst is ==> \n", new_inst)
+                key, value = f"{cls}.{inst.id}", new_inst
+                # print("value: ",value)
+                dictionary[key] = new_inst
         else:
             table_names = inspect(self.__engine).get_table_names()
             # print('Table names :', table_names)
 
             for table_name in table_names:
                 table = Base.metadata.tables[table_name]
-                for inst in self.__session.query(table).all():
+                for inst in self.__session.query(table):
                     for k, v in classes.items():
-                        if v == table_name:
+                        # print(v.__tablename__, "==",table_name)
+                        if v.__tablename__ == table_name:
                             class_name = k
                             break
-                    key, value = f"{class_name}.{inst.id}", inst
+                    new_inst = classes[class_name](inst)
+                    key, value = f"{class_name}.{inst.id}", new_inst
                     # print(key, value)
                     dictionary[key] = value
 
-        print(dictionary)
+        # print("dict is ==> \n", dictionary)
         return dictionary
 
 
