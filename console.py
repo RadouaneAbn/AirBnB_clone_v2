@@ -224,28 +224,29 @@ class HBNBCommand(cmd.Cmd):
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
         # print_list = []
-        print(args)
-
+        # print(args)
         if args:
-            print("args case:")
+            # print("args case:")
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
             print_list = storage.all(args)
-            print("list ready")
+            # print("list ready")
             # for k, v in storage._FileStorage__objects.items():
             #     if k.split('.')[0] == args:
             #         print_list.append(str(v))
         else:
-            print("no args case:")
+            # print("no args case:")
             print_list = storage.all()
-            print("list ready")
+            # print("list ready")
             # for k, v in storage._FileStorage__objects.items():
             #     print_list.append(str(v))
         
-        # print_list = [value for value in print_list.values()]
+        print_list = [value for value in print_list.values()]
 
+        # for inst in print_list:
+        #     print(inst)
         print(print_list)
 
     def help_all(self):
