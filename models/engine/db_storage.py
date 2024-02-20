@@ -65,23 +65,24 @@ class DBStorage:
 
     def all(self, cls=None):
         classes = {
-            "State": State.__tablename__,
-            "City": City.__tablename__,
-            "User": User.__tablename__,
-            "Place": Place.__tablename__,
-            # "Review": Review.__tablename__,
-            # "Amenity": Amenity.__tablename__,
+            "State": State,
+            "City": City,
+            "User": User,
+            "Place": Place,
+            # "Review": Review,
+            # "Amenity": Amenity,
         }
         dictionary = {}
         print("cls :", cls)
         
         if cls:
-            table = Base.metadata.tables[classes[cls]]
-            for inst in self.__session.query(table).all():
-                print(inst)
-                key, value = f"{cls}.{inst.id}", inst
-                # print(key, value)
-                dictionary[key] = value
+            table = Base.metadata.tables[classes[cls].__tablename__]
+            for inst in self.__session.query(table):
+                new_inst = classes[cls](inst)
+                # print(new_inst)
+                key, value = f"{cls}.{inst.id}", new_inst
+                # print("value: ",value)
+                dictionary[key] = new_inst
         else:
             table_names = inspect(self.__engine).get_table_names()
             # print('Table names :', table_names)
@@ -97,7 +98,7 @@ class DBStorage:
                     # print(key, value)
                     dictionary[key] = value
 
-        print(dictionary)
+        # print(dictionary)
         return dictionary
 
 
