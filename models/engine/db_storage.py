@@ -5,6 +5,14 @@ from models.base_model import Base
 from sqlalchemy import inspect
 from os import environ
 
+from models.state import State
+from models.city import City
+from models.user import User
+from models.place import Place
+from models.review import Review
+from models.amenity import Amenity
+
+
 
 class DBStorage:
     __engine = None
@@ -42,7 +50,7 @@ class DBStorage:
 
     def new(self, obj):
         attrs = obj.to_dict()
-        print("attrs are: ", attrs)
+        # print("attrs are: ", attrs)
         cls = obj.__class__
         new_instance = cls()
         for key, value in attrs.items():
@@ -56,16 +64,41 @@ class DBStorage:
         self.__session.commit()
 
     def all(self, cls=None):
+        classes = {
+            "State": State.__tablename__,
+            "City": City.__tablename__,
+            "User": User.__tablename__,
+            "Place": Place.__tablename__,
+            # "Review": Review.__tablename__,
+            # "Amenity": Amenity.__tablename__,
+        }
+        dictionary = {}
+        print("cls :", cls)
         
         if cls:
-            self.__session.query(cls).all()
+            table = Base.metadata.tables[classes[cls]]
+            for inst in self.__session.query(table).all():
+                print(inst)
+                key, value = f"{cls}.{inst.id}", inst
+                # print(key, value)
+                dictionary[key] = value
         else:
             table_names = inspect(self.__engine).get_table_names()
+            # print('Table names :', table_names)
 
             for table_name in table_names:
                 table = Base.metadata.tables[table_name]
-                for row in self.__session.query(table).all():
-                    print(row)
+                for inst in self.__session.query(table).all():
+                    for k, v in classes.items():
+                        if v == table_name:
+                            class_name = k
+                            break
+                    key, value = f"{class_name}.{inst.id}", inst
+                    # print(key, value)
+                    dictionary[key] = value
+
+        print(dictionary)
+        return dictionary
 
 
     def delete(self, obj=None):
