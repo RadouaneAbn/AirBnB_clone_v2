@@ -1,6 +1,0 @@
-1 - Title : README.md exists and is not empty
-	Type : Code
-
-2 - Title : README.md udpated
-	Type : Code
-

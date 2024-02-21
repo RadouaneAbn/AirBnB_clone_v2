@@ -1,2 +1,0 @@
-create User email="myemail@gmail.com" password="my_pwd" first_name="John" last_name="Doe"
-quit
