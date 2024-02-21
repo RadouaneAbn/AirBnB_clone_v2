@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+""" db_storage Module"""
 from sqlalchemy import (create_engine)
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models.base_model import Base
@@ -17,6 +18,7 @@ class DBStorage:
     __session = None
 
     def __init__(self):
+        """ Create an engine """
         mysql_user = environ.get('HBNB_MYSQL_USER')
         mysql_password = environ.get('HBNB_MYSQL_PWD')
         mysql_host = environ.get('HBNB_MYSQL_HOST')
@@ -35,6 +37,7 @@ class DBStorage:
                 table.drop(self.__engine)
 
     def reload(self):
+        """ Create a Session """
         from models.base_model import BaseModel
         from models.city import City
         from models.state import State
@@ -45,6 +48,7 @@ class DBStorage:
         self.__session = Session()
 
     def new(self, obj):
+        """ Add new inst into Session """
         attrs = obj.to_dict()
         # print("attrs are: ", attrs)
         cls = obj.__class__
@@ -57,9 +61,11 @@ class DBStorage:
         self.__session.add(new_instance)
 
     def save(self):
+        """ Commit the changes into the data base """
         self.__session.commit()
 
     def all(self, cls=None):
+        """ Return a dictionary of instances """
         classes = {
             "State": State,
             "City": City,
@@ -87,10 +93,6 @@ class DBStorage:
                         inst, "_sa_instance_state")
                 }
                 attrs_list.append((classes[cls], inst_attr))
-
-                # new_inst = classes[cls](**inst_attr)
-                # key, value = f"{cls}.{inst.id}", new_inst
-                # dictionary[key] = new_inst
         else:
             table_names = inspect(self.__engine).get_table_names()
             for table_name in table_names:
@@ -101,17 +103,9 @@ class DBStorage:
                         for column in table.columns if not hasattr(
                             inst, "_sa_instance_state")
                     }
-                    # print("attrs are: ", inst_attr)
                     class_obj = table_to_class[table_name]
                     attrs_list.append((class_obj, inst_attr))
 
-                    # for k, v in classes.items():
-                    #     if v.__tablename__ == table_name:
-                    #         class_name = k
-                    #         break
-                    # new_inst = classes[class_name](inst)
-                    # key, value = f"{class_name}.{inst.id}", new_inst
-                    # dictionary[key] = value
         for Class, attr in attrs_list:
             # print("attrs :", attr)
             new_instance = Class(**attr)
@@ -127,6 +121,7 @@ class DBStorage:
         return dictionary
 
     def delete(self, obj=None):
+        """ Deletes an instance from a database """
         classes = {
             "states": State,
             "cities": City,
@@ -144,14 +139,11 @@ class DBStorage:
         # print("table =======> ", table)
         cls = classes[str(table)]
         # print(cls)
-
-        wanted_row = self.__session.query(cls).where(cls.id == obj.id).one_or_none()
-    
+        wanted_row = self.__session.query(cls)\
+            .where(cls.id == obj.id).one_or_none()
         # print("wanted: \n==> ", wanted_row)
-
         if not wanted_row:
             return
 
         self.__session.delete(wanted_row)
         self.__session.commit()
-
