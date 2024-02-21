@@ -1,9 +1,23 @@
 #!/usr/bin/python3
 """ Place Module for HBNB project """
 from models.base_model import BaseModel, Base
-from sqlalchemy import Column, String, Integer, Float, ForeignKey
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Table
 from os import environ
 from sqlalchemy.orm import relationship
+
+place_amenity = Table(
+    'place_amenity', Base.metadata,
+    Column('place_id',
+           String(60),
+           ForeignKey('places.id'),
+           primary_key=True,
+           nullable=False),
+    Column('amenity_id',
+           String(60),
+           ForeignKey('amenities.id'),
+           primary_key=True,
+           nullable=False)
+)
 
 
 class Place(BaseModel, Base):
@@ -26,6 +40,8 @@ class Place(BaseModel, Base):
         reviews = relationship("Review",
                                cascade="all, delete, delete-orphan",
                                backref="place")
+        amenities = relationship("Amenity", secondary=place_amenity,
+                                 viewonly=False)
     else:
         """ When using a FileStorage """
         @property
@@ -34,5 +50,23 @@ class Place(BaseModel, Base):
             from models import storage
             all_inst = storage.all("Review")
             for key, value in all_inst.items():
-                list_reviews.append(value)
+                if (self.id == value.id):
+                    list_reviews.append(value)
             return list_reviews
+
+        @property
+        def amenities(self):
+            list_amenities = []
+            from models import storage
+            all_inst = storage.all("Amenity")
+            for k, v in all_inst.items():
+                if v.id in self.amenity_ids:
+                    list_amenities.append(v)
+            return list_amenities
+
+        @amenities.setter
+        def amenities(self, obj=None):
+            if obj.__class__ != "Amenity":
+                return
+
+            self.amenity_ids.append(obj.id)

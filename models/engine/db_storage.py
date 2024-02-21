@@ -43,7 +43,9 @@ class DBStorage:
 
     def new(self, obj):
         """ Add new inst into Session """
+        # print("obj ==>\n", obj)
         attrs = obj.to_dict()
+        # print("attrs are: ", attrs)
         cls = obj.__class__
         new_instance = cls()
         for key, value in attrs.items():
@@ -66,44 +68,19 @@ class DBStorage:
             "Review": Review,
             "Amenity": Amenity,
         }
-        table_to_class = {
-            'states': State,
-            'cities': City,
-            'users': User,
-            'places': Place,
-            'reviews': Review,
-            'amenities': Amenity
-        }
+
         dictionary = {}
-        inst_attr = {}
-        attrs_list = []
 
         if cls:
-            table = Base.metadata.tables[classes[cls].__tablename__]
-            for inst in self.__session.query(table).all():
-                inst_attr = {
-                    column.name: getattr(inst, column.name)
-                    for column in table.columns if not hasattr(
-                        inst, "_sa_instance_state")
-                }
-                attrs_list.append((classes[cls], inst_attr))
+            inst_class = classes[cls]
+            for inst in self.__session.query(inst_class).all():
+                key = f"{inst_class.__name__}.{inst.id}"
+                dictionary[key] = inst
         else:
-            table_names = inspect(self.__engine).get_table_names()
-            for table_name in table_names:
-                table = Base.metadata.tables[table_name]
-                for inst in self.__session.query(table).all():
-                    inst_attr = {
-                        column.name: getattr(inst, column.name)
-                        for column in table.columns if not hasattr(
-                            inst, "_sa_instance_state")
-                    }
-                    class_obj = table_to_class[table_name]
-                    attrs_list.append((class_obj, inst_attr))
-
-        for Class, attr in attrs_list:
-            new_instance = Class(**attr)
-            key, value = f"{Class.__name__}.{new_instance.id}", new_instance
-            dictionary[key] = value
+            for cls in classes.values():
+                for inst in self.__session.query(cls).all():
+                    key = f"{cls.__name__}.{inst.id}"
+                    dictionary[key] = inst
         return dictionary
 
     def delete(self, obj=None):
