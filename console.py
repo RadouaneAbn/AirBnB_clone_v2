@@ -11,6 +11,7 @@ from models.amenity import Amenity
 from models.review import Review
 from models import storage
 import re
+import os
 
 
 class HBNBCommand(cmd.Cmd):
@@ -176,7 +177,11 @@ class HBNBCommand(cmd.Cmd):
 
         key = c_name + "." + c_id
         try:
-            print(storage._FileStorage__objects[key])
+            if os.environ.get('HBNB_TYPE_STORAGE') == "db":
+                incts = storage.all(c_name)
+                print(incts[key])
+            else:
+                print(storage._FileStorage__objects[key])
         except KeyError:
             print("** no instance found **")
 
