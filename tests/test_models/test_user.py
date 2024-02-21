@@ -1,34 +1,23 @@
 #!/usr/bin/python3
-""" """
-from tests.test_models.test_base_model import test_basemodel
+import unittest
 from models.user import User
 
+class test_UserModel(unittest.TestCase):
+    """ Test the user model class"""
 
-class test_User(test_basemodel):
-    """ """
+def setUp(self):
+    self.model=User()
+    self.model.save()
 
-    def __init__(self, *args, **kwargs):
-        """ """
-        super().__init__(*args, **kwargs)
-        self.name = "User"
-        self.value = User
+def test_var_init(self):
+    self.assertTrue(hasattr(self.model, "email"))
+    self.assertTrue(hasattr(self.model, "password"))
+    self.assertTrue(hasattr(self.model, "first_name"))
+    self.assertTrue(hasattr(self.model, "last_name"))
+    self.assertEqual(self.model.email, "")
+    self.assertEqual(self.model.password, "")
+    self.assertEqual(self.model.first_name, "")
+    self.assertEqual(self.model.last_name, "")
 
-    def test_first_name(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.first_name), str)
-
-    def test_last_name(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.last_name), str)
-
-    def test_email(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.email), str)
-
-    def test_password(self):
-        """ """
-        new = self.value()
-        self.assertEqual(type(new.password), str)
+if __name__ == "__main__":
+    unittest.main()
