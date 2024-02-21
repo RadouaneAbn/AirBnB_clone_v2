@@ -4,14 +4,12 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 from models.base_model import Base
 from sqlalchemy import inspect
 from os import environ
-
 from models.state import State
 from models.city import City
 from models.user import User
 from models.place import Place
 from models.review import Review
 from models.amenity import Amenity
-
 
 
 class DBStorage:
@@ -23,12 +21,12 @@ class DBStorage:
         mysql_password = environ.get('HBNB_MYSQL_PWD')
         mysql_host = environ.get('HBNB_MYSQL_HOST')
         mysql_db = environ.get('HBNB_MYSQL_DB')
-        print("creating engine")
-        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'\
-            .format(mysql_user, mysql_password, mysql_host, mysql_db),
+        # print("creating engine")
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
+            mysql_user, mysql_password, mysql_host, mysql_db),
             pool_pre_ping=True)
-        
-        print("engine created")
+
+        # print("engine created")
         if environ.get('HBNB_ENV') == 'test':
             table_names = inspect(self.__engine).get_table_names()
 
@@ -41,7 +39,8 @@ class DBStorage:
         from models.city import City
         from models.state import State
         Base.metadata.create_all(self.__engine)
-        session_factory = sessionmaker(bind=self.__engine, expire_on_commit=False)
+        session_factory = sessionmaker(
+            bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
 
@@ -69,54 +68,86 @@ class DBStorage:
             # "Review": Review,
             # "Amenity": Amenity,
         }
+        table_to_class = {
+            'states': State,
+            'cities': City,
+            'users': User,
+            'places': Place
+        }
         dictionary = {}
         inst_attr = {}
-        # print("cls :", cls)
-        
+        attrs_list = []
+
         if cls:
             table = Base.metadata.tables[classes[cls].__tablename__]
             for inst in self.__session.query(table).all():
-                # print("inst is : \n", inst)
                 inst_attr = {
                     column.name: getattr(inst, column.name)
-                    for column in table.columns if not hasattr(inst, "_sa_instance_state")
+                    for column in table.columns if not hasattr(
+                        inst, "_sa_instance_state")
                 }
-                # print(inst_attr)
-                new_inst = classes[cls](**inst_attr)
-                # new_inst.__dict__.update(inst_attr)
-                # print(new_inst.__dict__)
-                # print("new inst is ==> \n", new_inst)
-                key, value = f"{cls}.{inst.id}", new_inst
-                # print("value: ",value)
-                dictionary[key] = new_inst
+                attrs_list.append((classes[cls], inst_attr))
+
+                # new_inst = classes[cls](**inst_attr)
+                # key, value = f"{cls}.{inst.id}", new_inst
+                # dictionary[key] = new_inst
         else:
             table_names = inspect(self.__engine).get_table_names()
-            # print('Table names :', table_names)
-
             for table_name in table_names:
                 table = Base.metadata.tables[table_name]
-                for inst in self.__session.query(table):
-                    for k, v in classes.items():
-                        # print(v.__tablename__, "==",table_name)
-                        if v.__tablename__ == table_name:
-                            class_name = k
-                            break
-                    new_inst = classes[class_name](inst)
-                    key, value = f"{class_name}.{inst.id}", new_inst
-                    # print(key, value)
-                    dictionary[key] = value
+                for inst in self.__session.query(table).all():
+                    inst_attr = {
+                        column.name: getattr(inst, column.name)
+                        for column in table.columns if not hasattr(
+                            inst, "_sa_instance_state")
+                    }
+                    # print("attrs are: ", inst_attr)
+                    class_obj = table_to_class[table_name]
+                    attrs_list.append((class_obj, inst_attr))
+
+                    # for k, v in classes.items():
+                    #     if v.__tablename__ == table_name:
+                    #         class_name = k
+                    #         break
+                    # new_inst = classes[class_name](inst)
+                    # key, value = f"{class_name}.{inst.id}", new_inst
+                    # dictionary[key] = value
+        for Class, attr in attrs_list:
+            # print("attrs :", attr)
+            new_instance = Class(**attr)
+            # print("#############################")
+            # print("inst: ", new_instance)
+            # print("#############################")
+            key, value = f"{Class.__name__}.{new_instance.id}", new_instance
+            # print("key: ", key)
+            # print("value: ", value)
+            dictionary[key] = value
 
         # print("dict is ==> \n", dictionary)
         return dictionary
 
-
     def delete(self, obj=None):
+        classes = {
+            "states": State,
+            "cities": City,
+            "users": User,
+            "places": Place,
+            # "Review": Review,
+            # "Amenity": Amenity,
+        }
         if not obj:
             return
-        
-        wanted_row = self.__session.query(obj.__tablename__).where(id=obj.id)
+
+        # print(type(obj))
+        print("obj", obj)
+        table = Base.metadata.tables[obj.__tablename__]
+        print("table: ", table)
+
+        wanted_row = self.__session.query(table).filter(
+                classes[table].id == obj.id).one_or_none()
+
         if not wanted_row:
             return
-        
+
         self.__session.delete(wanted_row)
         self.__session.commit()

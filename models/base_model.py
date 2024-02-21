@@ -23,12 +23,11 @@ class BaseModel:
             self.created_at = datetime.now()
             self.updated_at = datetime.now()
         else:
-            # print("kwargs: \n", kwargs)
             if not environ.get('HBNB_TYPE_STORAGE') == "db":
-                kwargs['updated_at'] = datetime.strptime(kwargs['updated_at'],
-                                                        '%Y-%m-%dT%H:%M:%S.%f')
-                kwargs['created_at'] = datetime.strptime(kwargs['created_at'],
-                                                        '%Y-%m-%dT%H:%M:%S.%f')
+                kwargs['updated_at'] = datetime.strptime(
+                    kwargs['updated_at'], '%Y-%m-%dT%H:%M:%S.%f')
+                kwargs['created_at'] = datetime.strptime(
+                    kwargs['created_at'], '%Y-%m-%dT%H:%M:%S.%f')
                 del kwargs['__class__']
 
             for key, value in kwargs.items():
@@ -38,13 +37,16 @@ class BaseModel:
         """Returns a string representation of the instance"""
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
         return '[{}] ({}) {}'.format(cls, self.id, self.__dict__)
-    
+
     def __repr__(self):
         """Returns a string representation of the instance"""
         str_rep = self.__dict__
-        # print("inst dict is : \n", self.__dict__)
-        if "_sa_instance_state" in str_rep.keys():
+        try:
             del(str_rep["_sa_instance_state"])
+        except KeyError:
+            pass
+
+        # print("inst dict is : \n", str_rep)
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
         return '[{}] ({}) {}'.format(cls, self.id, str_rep)
 
