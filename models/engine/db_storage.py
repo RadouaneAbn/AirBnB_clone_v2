@@ -43,9 +43,7 @@ class DBStorage:
 
     def new(self, obj):
         """ Add new inst into Session """
-        # print("obj ==>\n", obj)
         attrs = obj.to_dict()
-        # print("attrs are: ", attrs)
         cls = obj.__class__
         new_instance = cls()
         for key, value in attrs.items():

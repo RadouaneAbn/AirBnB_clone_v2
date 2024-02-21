@@ -36,7 +36,6 @@ class BaseModel:
             del(str_rep["_sa_instance_state"])
         except KeyError:
             pass
-        # print("inst dict is : \n", str_rep)
         cls = (str(type(self)).split('.')[-1]).split('\'')[0]
         return '[{}] ({}) {}'.format(cls, self.id, str_rep)
 
@@ -57,8 +56,11 @@ class BaseModel:
         dictionary.update(self.__dict__)
         dictionary.update({'__class__':
                           (str(type(self)).split('.')[-1]).split('\'')[0]})
-        dictionary['created_at'] = self.created_at.isoformat()
-        dictionary['updated_at'] = self.updated_at.isoformat()
+        try:
+            dictionary['created_at'] = self.created_at.isoformat()
+            dictionary['updated_at'] = self.updated_at.isoformat()
+        except Exception:
+            pass
         try:
             del(dictionary["_sa_instance_state"])
         except Exception:

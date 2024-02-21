@@ -1,0 +1,48 @@
+1 - Title : pycodestyle console
+	Type : Requirement
+
+2 - Title : pycodestyle models
+	Type : Requirement
+
+3 - Title : pycodestyle engine
+	Type : Requirement
+
+4 - Title : pycodestyle tests
+	Type : Requirement
+
+5 - Title : Discover tests number >= 50 - FileStorage
+	Type : Code
+
+6 - Title : Discover tests success - FileStorage
+	Type : Code
+
+7 - Title : Tests console - FileStorage
+	Type : Code
+
+8 - Title : Tests BaseModel - FileStorage
+	Type : Code
+
+9 - Title : Tests Models - FileStorage
+	Type : Code
+
+10 - Title : Test FileStorage
+	Type : Code
+
+11 - Title : Discover tests number >= 50 - DBStorage
+	Type : Code
+
+12 - Title : Discover tests success - DBStorage
+	Type : Code
+
+13 - Title : Tests console - DBStorage
+	Type : Code
+
+14 - Title : Tests BaseModel - DBStorage
+	Type : Code
+
+15 - Title : Tests Models - DBStorage
+	Type : Code
+
+16 - Title : Test DBStorage
+	Type : Code
+
