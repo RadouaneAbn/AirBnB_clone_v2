@@ -136,19 +136,16 @@ class HBNBCommand(cmd.Cmd):
                 if not re.match(r"^\".*\"$|^-?\d*\.\d*$|^-?\d*$", value):
                     continue
 
-                value = value.strip('"')
                 try:
                     value = eval(value)
                 except Exception:
-                    pass
+                    value = value.strip('"')
+                    value = value.replace('\\', '')
                 setattr(new_instance, key, value)
 
-        # print("step create: ")
-        # print(new_instance)
         storage.new(new_instance)
         storage.save()
         print(new_instance.id)
-        # storage.save()
 
     def help_create(self):
         """ Help information for the create method """
@@ -211,12 +208,8 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            # print("key : ", key)
             inst = storage.all(c_name)
-            # print("all inst ==> \n", inst)
             inst = inst[key]
-            # print("inst ==> \n", inst)
-            # print(inst)
             storage.delete(inst)
         except KeyError:
             print("** no instance found **")
@@ -228,29 +221,15 @@ class HBNBCommand(cmd.Cmd):
 
     def do_all(self, args):
         """ Shows all objects, or all objects of a class"""
-        # print_list = []
-        # print(args)
         if args:
-            # print("args case:")
             args = args.split(' ')[0]  # remove possible trailing args
             if args not in HBNBCommand.classes:
                 print("** class doesn't exist **")
                 return
             print_list = storage.all(args)
-            # print("list ready")
-            # for k, v in storage._FileStorage__objects.items():
-            #     if k.split('.')[0] == args:
-            #         print_list.append(str(v))
         else:
-            # print("no args case:")
             print_list = storage.all()
-            # print("list ready")
-            # for k, v in storage._FileStorage__objects.items():
-            #     print_list.append(str(v))
         print_list = [value for value in print_list.values()]
-
-        # for inst in print_list:
-        #     print(inst)
         print(print_list)
 
     def help_all(self):
