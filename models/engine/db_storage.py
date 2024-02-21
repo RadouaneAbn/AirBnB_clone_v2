@@ -139,15 +139,19 @@ class DBStorage:
             return
 
         # print(type(obj))
-        print("obj", obj)
+        # print("obj: \n", obj)
         table = Base.metadata.tables[obj.__tablename__]
-        print("table: ", table)
+        # print("table =======> ", table)
+        cls = classes[str(table)]
+        # print(cls)
 
-        wanted_row = self.__session.query(table).filter(
-                classes[table].id == obj.id).one_or_none()
+        wanted_row = self.__session.query(cls).where(cls.id == obj.id).one_or_none()
+    
+        # print("wanted: \n==> ", wanted_row)
 
         if not wanted_row:
             return
 
         self.__session.delete(wanted_row)
         self.__session.commit()
+

@@ -211,14 +211,13 @@ class HBNBCommand(cmd.Cmd):
         key = c_name + "." + c_id
 
         try:
-            print("key : ", key)
-            inst = storage.all()
-            print("all inst ==> \n", inst)
+            # print("key : ", key)
+            inst = storage.all(c_name)
+            # print("all inst ==> \n", inst)
             inst = inst[key]
-            print("inst ==> \n", inst)
+            # print("inst ==> \n", inst)
             # print(inst)
             storage.delete(inst)
-            storage.save()
         except KeyError:
             print("** no instance found **")
 
