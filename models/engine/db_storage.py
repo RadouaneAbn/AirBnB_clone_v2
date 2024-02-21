@@ -71,14 +71,16 @@ class DBStorage:
             "City": City,
             "User": User,
             "Place": Place,
-            # "Review": Review,
-            # "Amenity": Amenity,
+            "Review": Review,
+            "Amenity": Amenity,
         }
         table_to_class = {
             'states': State,
             'cities': City,
             'users': User,
-            'places': Place
+            'places': Place,
+            'reviews': Review,
+            'amenities': Amenity
         }
         dictionary = {}
         inst_attr = {}
@@ -127,8 +129,8 @@ class DBStorage:
             "cities": City,
             "users": User,
             "places": Place,
-            # "Review": Review,
-            # "Amenity": Amenity,
+            "Review": Review,
+            "Amenity": Amenity,
         }
         if not obj:
             return
