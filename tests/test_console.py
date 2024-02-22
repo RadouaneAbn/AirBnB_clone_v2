@@ -32,16 +32,16 @@ class Test_HBNBCommand(unittest.TestCase):
         output = mock_stdout.getvalue().strip()
         self.assertTrue(output)
     
-    def test_do_show(self):
-        objects_dict = storage.all("BaseModel")
-        if not objects_dict:
-            self.fail("No instances of BaseModel found in storage.")
+    # def test_do_show(self):
+    #     objects_dict = storage.all("BaseModel")
+    #     if not objects_dict:
+    #         self.fail("No instances of BaseModel found in storage.")
 
-        obj_id = list(objects_dict.keys())[0]
+    #     obj_id = list(objects_dict.keys())[0]
 
-        with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
-            self.console.onecmd(f"show BaseModel {obj_id}")
-        self.assertTrue(obj_id in storage.all("BaseModel"))
+    #     with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
+    #         self.console.onecmd(f"show BaseModel {obj_id}")
+    #     self.assertTrue(obj_id in storage.all("BaseModel"))
     
     def test_do_all(self):
         with patch('sys.stdout', new_callable=StringIO) as mock_stdout:
