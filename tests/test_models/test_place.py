@@ -3,13 +3,13 @@ import unittest
 from models.place import Place
 
 
-class Test_PlaceModel(unittest.TestCase):
+class test_Place(unittest.TestCase):
     """ Test place model class """
 
     def setUp(self):
         self.model = Place()
         self.model.save()
-    
+
     def test_var_init(self):
         self.assertTrue(hasattr(self.model, "city_id"))
         self.assertTrue(hasattr(self.model, "user_id"))
@@ -33,6 +33,7 @@ class Test_PlaceModel(unittest.TestCase):
         # self.assertEqual(self.model.latitude, 0.0)
         # self.assertEqual(self.model.longitude, 0.0)
         # self.assertEqual(self.model.amenities, [''])
+
 
 if __name__ == "__main__":
     unittest.main()

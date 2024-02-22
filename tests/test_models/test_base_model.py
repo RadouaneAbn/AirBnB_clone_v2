@@ -5,7 +5,7 @@ from datetime import datetime
 import ast
 
 
-class Test_BaseModel(unittest.TestCase):
+class test_basemodel(unittest.TestCase):
 
     def setUp(self):
         self.model = BaseModel()
@@ -36,8 +36,10 @@ class Test_BaseModel(unittest.TestCase):
         self.assertTrue(isinstance(model_dict, dict))
         self.assertEqual(model_dict['id'], self.model.id)
         self.assertEqual(model_dict['__class__'], 'BaseModel')
-        self.assertEqual(model_dict['created_at'], self.model.created_at.isoformat())
-        self.assertEqual(model_dict['updated_at'], self.model.updated_at.isoformat())
+        self.assertEqual(model_dict['created_at'],
+                         self.model.created_at.isoformat())
+        self.assertEqual(model_dict['updated_at'],
+                         self.model.updated_at.isoformat())
         self.assertNotIn('_sa_instance_state', model_dict)
 
     def tearDown(self):

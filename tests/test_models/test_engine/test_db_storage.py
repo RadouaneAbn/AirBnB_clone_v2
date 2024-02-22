@@ -11,8 +11,10 @@ from models.state import State
 # from models.review import Review
 # from models.amenity import Amenity
 
-@unittest.skipIf(environ.get('HBNB_TYPE_STORAGE') != 'db', 'Test only for DBStorage')
-class TestDBStorage(unittest.TestCase):
+
+@unittest.skipIf(environ.get('HBNB_TYPE_STORAGE') != 'db',
+                 'Test only for DBStorage')
+class test_dbStorage(unittest.TestCase):
     """ Class to test the file storage method """
 
     @classmethod
@@ -78,3 +80,7 @@ class TestDBStorage(unittest.TestCase):
         storage.delete(new_state)
         storage.reload()
         self.assertNotIn(new_state, storage.all().values())
+
+
+if __name__ == "__main__":
+    unittest.main()

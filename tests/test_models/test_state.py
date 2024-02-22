@@ -3,7 +3,7 @@ import unittest
 from models.state import State
 
 
-class test_stateModel(unittest.TestCase):
+class test_State(unittest.TestCase):
     """ Test state model class"""
 
     def setUp(self):
@@ -15,6 +15,7 @@ class test_stateModel(unittest.TestCase):
         # self.assertEqual(self.model.name, "")
         self.model = State(name="")
         self.assertEqual(self.model.name, "")
-    
+
+
 if __name__ == "__main__":
     unittest.main()
