@@ -1,91 +1,80 @@
 #!/usr/bin/python3
+""" Module for testing db storage"""
 import unittest
-from models.engine.db_storage import DBStorage
 # from models.base_model import BaseModel
+from models import storage
+from os import environ
 from models.state import State
-from models.city import City
-from models.user import User
+# from models.city import City
+# from models.user import User
 # from models.place import Place
 # from models.review import Review
 # from models.amenity import Amenity
 
+@unittest.skipIf(environ.get('HBNB_TYPE_STORAGE') != 'db', 'Test only for DBStorage')
+class TestDBStorage(unittest.TestCase):
+    """ Class to test the file storage method """
 
-class test_dbstorage(unittest.TestCase):
-    """Test db_storage class method """
+    @classmethod
+    def setUpClass(cls):
+        """ Set up test environment """
+        environ['HBNB_MYSQL_USER'] = 'your_mysql_user'
+        environ['HBNB_MYSQL_PWD'] = 'your_mysql_password'
+        environ['HBNB_MYSQL_HOST'] = 'your_mysql_host'
+        environ['HBNB_MYSQL_DB'] = 'your_mysql_db'
+        environ['HBNB_ENV'] = 'test'
+
+    @classmethod
+    def tearDownClass(cls):
+        """ Remove environment variables after tests """
+        del environ['HBNB_MYSQL_USER']
+        del environ['HBNB_MYSQL_PWD']
+        del environ['HBNB_MYSQL_HOST']
+        del environ['HBNB_MYSQL_DB']
+        del environ['HBNB_ENV']
 
     def setUp(self):
-        self.db_storage = DBStorage()
-        self.db_storage.reload()
-    
+        """ Reload the storage engine """
+        storage.reload()
+
     def tearDown(self):
-        del self.db_storage
-    
-    def test_init(self):
-        db_storage = DBStorage()
-        self.assertIsNone(db_storage._DBStorage__engine)
-        expected_connection_string = 'mysql+mysqldb://user:password@localhost/database'
-        self.asserEqual(str(db_storage._DBStorage__engine.url), expected_connection_string)
-        self.assertEqual(len(db_storage._DBStorage__engine.table_names()), 0)
-    
-    def test_reload(self):
-        db_storage = DBStorage
+        """ Remove storage file at end of tests """
+        storage._DBStorage__session.close()
+        storage._DBStorage__engine.dispose()
 
-        exist_state = State(name='Rabat')
-        db_storage._DBStorage__session.add(exist_state)
-        db_storage.DBStorage__session.commit()
+    def test_obj_list_empty(self):
+        """ __objects is initially empty """
+        self.assertEqual(len(storage.all()), 0)
 
-        db_storage.reload()
-
-        self.assetGreater(len(db_storage._DBStorage__engine.table_names()), 0)
-
-        self.assertEqual(len(db_storage.all(State)), 0)
     def test_new(self):
-        state = State(name='Ssouss')
-        city = City(name='Agadir', state_id='test_password')
-        user = User(userame='test_user', password='test_password')
+        """ New object is correctly added to __objects """
+        new = State(name="California")
+        storage.new(new)
+        storage.save()
+        self.assertIn(new, storage.all().values())
 
-        self.db_storage.new(state)
-        self.db_storage.new(city)
-        self.db_storage.new(user)
-
-        self.assertTrue(state in self.db_storage._DBStorage__session)
-        self.assertTrue(city in self.db_storage._DBStorage__session)
-        self.assertTrue(user in self.db_storage._DBStorage__session)
-    
-    def test_save(self):
-        state = State(name='Elhouz')
-        self.db_storage.new(state)
-        self.db_storage.save()
-
-        saved_state = self.db_storage.all(State).values()
-        self.assertEqual(len(saved_state), 1)
-        self.assertEqual(saved_state[0].name, 'Elhouz')
-    
     def test_all(self):
-        state = State(name='Massa')
-        city = City(name='Rachidia',state_id=state.id)
-        user =User(username='test_user_2',password='test_password_2')
+        """ __objects is properly returned """
+        new_state = State(name="California")
+        storage.new(new_state)
+        storage.save()
+        all_objs = storage.all()
+        self.assertIsInstance(all_objs, dict)
+        self.assertIn(new_state, all_objs.values())
 
-        self.db_storage.new(state)
-        self.db_storage.new(city)
-        self.db_storage.new(user)
-        self.db_storage.save()
+    def test_save(self):
+        """ Save method updates the JSON file """
+        new_state = State(name="California")
+        storage.new(new_state)
+        storage.save()
+        storage.reload()
+        self.assertIn(new_state, storage.all().values())
 
-        all_inst = self.db_storage.all()
-        self.assertTrue(state in all_inst.values())
-        self.assertTrue(city in all_inst.values())
-        self.assertTrue(user in all_inst.values())
-    
     def test_delete(self):
-        state = State(name='Casablanca')
-        self.db_storage.new(state)
-        self.db_storage.save()
-
-        self.assertTrue(state in self.db_storage._DBStorage__session)
-
-        self.db_storage.delete(state)
-        self.db_storage.save()
-        self.asserFalse(state in self.db_storage._DBStorage__session)
-
-if __name__ == "__main__":
-    unittest.main()
+        """ Delete method deletes an object from storage """
+        new_state = State(name="California")
+        storage.new(new_state)
+        storage.save()
+        storage.delete(new_state)
+        storage.reload()
+        self.assertNotIn(new_state, storage.all().values())

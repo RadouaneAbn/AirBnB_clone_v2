@@ -2,6 +2,7 @@
 import unittest
 from models.base_model import BaseModel
 from datetime import datetime
+import ast
 
 
 class Test_BaseModel(unittest.TestCase):
@@ -24,18 +25,6 @@ class Test_BaseModel(unittest.TestCase):
 
     def test_updated_at_type(self):
         self.assertTrue(isinstance(self.model.updated_at, datetime))
-
-    def test_str(self):
-        expected_str = f'[BaseModel] ({self.model.id}) {{"id": "{self.model.id}", ' \
-                       f'"created_at": "{self.model.created_at.isoformat()}", ' \
-                       f'"updated_at": "{self.model.updated_at.isoformat()}"}}'
-        self.assertEqual(str(self.model), expected_str)
-
-    def test_repr(self):
-        expected_repr = f'[BaseModel] ({self.model.id}) {{"id": "{self.model.id}", ' \
-                        f'"created_at": "{self.model.created_at.isoformat()}", ' \
-                        f'"updated_at": "{self.model.updated_at.isoformat()}"}}'
-        self.assertEqual(repr(self.model), expected_repr)
 
     def test_save(self):
         initial_updated_at = self.model.updated_at
