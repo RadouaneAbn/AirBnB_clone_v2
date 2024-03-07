@@ -42,6 +42,7 @@ def do_deploy(archive_path):
         run(f"mv -f {releases_path}/web_static/* {releases_path}")
         run(f"rm -rf {releases_path}/web_static")
         run(f"ln -sf {releases_path}/ /data/web_static/current")
+        print("New version deployed!")
         return True
     except Exception:
         return False
