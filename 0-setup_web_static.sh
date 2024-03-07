@@ -36,7 +36,7 @@ echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html
 
 sudo ln -sf "/data/web_static/releases/test/" "/data/web_static/current"
 
-sudo chown ubuntu:ubuntu "/data/"
+sudo chown -R ubuntu:ubuntu "/data/"
 
 config="\
         location /hbnb_static/ {\n\
