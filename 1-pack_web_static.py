@@ -7,6 +7,9 @@ from datetime import datetime
 
 
 def do_pack():
+    """ This script generates a .tgz archive from contents of the
+        web_static folder
+    """
     if not os.path.exists("versions"):
         os.mkdir("versions")
     current_time = datetime.now().strftime("%Y%m%d%H%M%S")
