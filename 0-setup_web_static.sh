@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # This script sets up a web server
 
-sudo apt-get -y update > /dev/null 2>&1
-sudo apt-get -y install nginx > /dev/null 2>&1
+sudo apt-get -y update > /dev/null
+sudo apt-get -y install nginx > /dev/null
 
 if ! test -d "/data"; then
         sudo mkdir "/data"
@@ -32,16 +32,16 @@ html_contain="<html>\n\
   </body>\n\
 </html>"
 
-echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html" > /dev/null
+echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html"
 
-sudo ln -sf "/data/web_static/releases/test" "/data/web_static/current"
+sudo ln -sf "/data/web_static/releases/test/" "/data/web_static/current"
 
-sudo chown ubuntu:ubuntu "/data"
+sudo chown -R ubuntu:ubuntu "/data/"
 
 config="\
         location /hbnb_static/ {\n\
                 alias /data/web_static/current/;\n\
-                autoindex off;\n\
+                index index.html;\n\
                 }\n\
 "
 
@@ -49,4 +49,4 @@ if ! grep -q "location /hbnb_static/" "/etc/nginx/sites-available/default"; then
         sudo sed -i "47i\\$config" "/etc/nginx/sites-available/default"
 fi
 
-sudo service nginx restart > /dev/null 2>&1
+sudo service nginx restart
