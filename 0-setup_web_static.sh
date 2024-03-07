@@ -24,21 +24,30 @@ if ! test -d "/data/web_static/releases/test"; then
         mkdir "/data/web_static/releases/test"
 fi
 
-if ! test -f "/data/web_static/releases/test/index.html"; then
-        touch "/data/web_static/releases/test/index.html"
-fi
+html_contain="<html>\n\
+  <head>\n\
+  </head>\n\
+  <body>\n\
+    Holberton School\n\
+  </body>\n\
+</html>"
+
+echo -e "$html_contain" | tee -a "/data/web_static/releases/test/index.html" > /dev/null
 
 ln -sf "/data/web_static/releases/test" "/data/web_static/current"
 
 chown ubuntu:ubuntu "/data"
 
-config="location /hbnb_static/ {\n\
-        alias /data/web_static/current/;\n\
-        autoindex off;\n\
-        }\n\
+config="\
+        location /hbnb_static/ {\n\
+                alias /data/web_static/current/;\n\
+                autoindex off;\n\
+                }\n\
 "
 
-sed -i "47i\\$config" "/etc/nginx/sites-available/default"
+if ! grep -q "location /hbnb_static/" "/etc/nginx/sites-available/default"; then
+        sed -i "47i\\$config" "/etc/nginx/sites-available/default"
+fi
 
 service nginx restart > /dev/null 2>&1
 
