@@ -26,27 +26,19 @@ def do_pack():
 
 
 def do_deploy(archive_path):
+    """ This function destributes an archive to my web servers
     """
-        Deploys and distributes an archive to web servers
-    """
+    if not os.path.exists(archive_path):
+        return False
 
-    if os.path.exists(archive_path):
-        put(archive_path, "/tmp/")
-        archive_file = archive_path[9:]
-        server_archive = "/tmp/{}".format(archive_file)
+    file_name = re.search(r"([^\/]*)\..*$", archive_path)[1]
+    releases_path = f"/data/web_static/releases/{file_name}"
 
-        archive_base, ext = os.path.splitext(archive_file)
-        new_path = "/data/web_static/releases/{}".format(archive_base)
-
-        run("sudo mkdir -p {}".format(new_path))
-        run("sudo tar -zxf {} -C {}".format(server_archive, new_path))
-        run("sudo rm  {}".format(server_archive))
-        run("sudo mv {}/web_static/* {}".format(new_path, new_path))
-        run("sudo rm -rf /data/web_static/current")
-        run("sudo ln -s {} /data/web_static/current".format(new_path))
-
-        print("New version deployed!")
-
-        return True
-
-    return False
+    put(archive_path, "/tmp/")
+    run(f"mkdir -p {releases_path}")
+    run(f"tar -zxf /tmp/{file_name}.tgz -C {releases_path}")
+    run(f"rm /tmp/{file_name}.tgz")
+    run(f"mv {releases_path}/web_static/* {releases_path}")
+    run(f"ln -sf {releases_path}/ /data/web_static/current")
+    print("New version deployed!")
+    return True
