@@ -1,27 +1,27 @@
 #!/usr/bin/env bash
 # This script sets up a web server
 
-apt-get -y update > /dev/null 2>&1
-apt-get -y install nginx > /dev/null 2>&1
+sudo apt-get -y update > /dev/null 2>&1
+sudo apt-get -y install nginx > /dev/null 2>&1
 
 if ! test -d "/data"; then
-        mkdir "/data"
+        sudo mkdir "/data"
 fi
 
 if ! test -d "/data/web_static"; then
-        mkdir "/data/web_static"
+        sudo mkdir "/data/web_static"
 fi
 
 if ! test -d "/data/web_static/releases"; then
-        mkdir "/data/web_static/releases"
+        sudo mkdir "/data/web_static/releases"
 fi
 
 if ! test -d "/data/web_static/shared"; then
-        mkdir "/data/web_static/shared"
+        sudo mkdir "/data/web_static/shared"
 fi
 
 if ! test -d "/data/web_static/releases/test"; then
-        mkdir "/data/web_static/releases/test"
+        sudo mkdir "/data/web_static/releases/test"
 fi
 
 html_contain="<html>\n\
@@ -32,11 +32,11 @@ html_contain="<html>\n\
   </body>\n\
 </html>"
 
-echo -e "$html_contain" | tee -a "/data/web_static/releases/test/index.html" > /dev/null
+echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html" > /dev/null
 
-ln -sf "/data/web_static/releases/test" "/data/web_static/current"
+sudo ln -sf "/data/web_static/releases/test" "/data/web_static/current"
 
-chown ubuntu:ubuntu "/data"
+sudo chown ubuntu:ubuntu "/data"
 
 config="\
         location /hbnb_static/ {\n\
@@ -46,9 +46,7 @@ config="\
 "
 
 if ! grep -q "location /hbnb_static/" "/etc/nginx/sites-available/default"; then
-        sed -i "47i\\$config" "/etc/nginx/sites-available/default"
+        sudo sed -i "47i\\$config" "/etc/nginx/sites-available/default"
 fi
 
-service nginx restart > /dev/null 2>&1
-
-exit 0
+sudo service nginx restart > /dev/null 2>&1
