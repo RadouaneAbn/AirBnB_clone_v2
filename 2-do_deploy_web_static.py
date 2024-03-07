@@ -39,6 +39,8 @@ def do_deploy(archive_path):
     run(f"tar -zxf /tmp/{file_name}.tgz -C {releases_path}")
     run(f"rm /tmp/{file_name}.tgz")
     run(f"mv {releases_path}/web_static/* {releases_path}")
-    run(f"ln -sf {releases_path}/ /data/web_static/current")
+    run(f"rm -r {releases_path}/web_static/")
+    run("rm /data/web_static/current")
+    run(f"ln -s {releases_path}/ /data/web_static/current")
     print("New version deployed!")
     return True
