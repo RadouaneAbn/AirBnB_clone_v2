@@ -34,15 +34,13 @@ def do_deploy(archive_path):
     file_name = re.search(r"([^\/]*)\..*$", archive_path)[1]
     releases_path = f"/data/web_static/releases/{file_name}"
 
-    try:
-        put(archive_path, "/tmp/")
-        run(f"mkdir -p {releases_path}")
-        run(f"tar -xzf /tmp/{file_name}.tgz -C {releases_path}")
-        run(f"rm /tmp/{file_name}.tgz")
-        run(f"mv -f {releases_path}/web_static/* {releases_path}")
-        run(f"rm -rf {releases_path}/web_static")
-        run(f"ln -sf {releases_path}/ /data/web_static/current")
-        print("New version deployed!")
-        return True
-    except Exception:
-        return False
+
+    put(archive_path, "/tmp/")
+    run(f"sudo mkdir -p {releases_path}")
+    run(f"sudo tar -xzf /tmp/{file_name}.tgz -C {releases_path}")
+    run(f"sudo rm /tmp/{file_name}.tgz")
+    run(f"sudo mv -f {releases_path}/web_static/* {releases_path}")
+    run(f"sudo rm -rf {releases_path}/web_static")
+    run(f"sudo ln -sf {releases_path}/ /data/web_static/current")
+    print("New version deployed!")
+    return True
