@@ -7,6 +7,7 @@ from datetime import datetime
 import re
 
 env.hosts = ['52.3.252.27', '54.160.117.45']
+env.user = "ubuntu"
 
 
 def do_pack():
@@ -38,10 +39,9 @@ def do_deploy(archive_path):
         run(f"mkdir -p {releases_path}")
         run(f"tar -xzf /tmp/{file_name}.tgz -C {releases_path}")
         run(f"rm /tmp/{file_name}.tgz")
-        run(f"mv {releases_path}/web_static/* {releases_path}")
+        run(f"mv -f {releases_path}/web_static/* {releases_path}")
         run(f"rm -rf {releases_path}/web_static")
-        run(f"rm -rf /data/web_static/current")
-        run(f"ln -s {releases_path} /data/web_static/current")
+        run(f"ln -sf {releases_path}/ /data/web_static/current")
         return True
     except Exception:
         return False
