@@ -37,10 +37,10 @@ def do_deploy(archive_path):
     put(archive_path, "/tmp/")
     run(f"sudo mkdir -p {releases_path}")
     run(f"sudo tar -zxf /tmp/{file_name}.tgz -C {releases_path}")
-    run(f"sudo rm /tmp/{file_name}.tgz")
+    # run(f"sudo rm /tmp/{file_name}.tgz")
     run(f"sudo mv {releases_path}/web_static/* {releases_path}")
     run(f"sudo rm -r {releases_path}/web_static/")
-    run("sudo rm /data/web_static/current")
+    run("sudo rm -rf /data/web_static/current")
     run(f"sudo ln -s {releases_path}/ /data/web_static/current")
     print("New version deployed!")
     return True
