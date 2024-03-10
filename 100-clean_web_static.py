@@ -63,7 +63,6 @@ def do_clean(number=0):
     ls_out = ls_out.split("\n")
     ls_server_out = run("ls -1r /data/web_static/releases | grep 'web_static'")
     ls_server_out = ls_server_out.split("\r\n")
-    print(ls_server_out)
 
     number = int(number)
     if number == 0:
