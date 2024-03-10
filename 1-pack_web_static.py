@@ -3,7 +3,7 @@
 """
 from fabric.api import *
 import os
-from datetime import datetime
+import time
 
 
 def do_pack():
@@ -12,10 +12,10 @@ def do_pack():
     """
     if not os.path.exists("versions"):
         os.mkdir("versions")
-    current_time = datetime.now().strftime("%Y%m%d%H%M%S")
-    file_name = f"web_static_{current_time}.tgz"
+    archive = "versions/web_static_{}.tgz".format(
+            time.strftime("%Y%m%d%H%M%S"))
     try:
-        local(f"tar -cvzf versions/{file_name} web_static")
-        return f"versions/{file_name}"
+        local("tar -cvzf {} web_static".format(archive))
+        return archive
     except Exception:
         return None
