@@ -59,9 +59,9 @@ def deploy():
 def do_clean(number=0):
     """ This function deletes previous versions af web_static
     """
-    ls_out = local("ls -1r versions", capture=True)
+    ls_out = local("ls -1t versions", capture=True)
     ls_out = ls_out.split("\n")
-    ls_server_out = run("ls -1r /data/web_static/releases | grep 'web_static'")
+    ls_server_out = run("ls -t /data/web_static/releases")
     ls_server_out = ls_server_out.split("\r\n")
 
     number = int(number)
