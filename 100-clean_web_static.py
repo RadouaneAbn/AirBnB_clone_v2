@@ -68,7 +68,7 @@ def do_clean(number=0):
     if number == 0:
         number += 1
     for file_name in ls_out[number:]:
-        local(f"rm versions/{file_name}")
+        local("sudo rm versions/{}".format(file_name))
 
     for file_name in ls_server_out[number:]:
-        run(f"sudo rm -r /data/web_static/releases/{file_name}")
+        run("sudo rm -r /data/web_static/releases/{}".format(file_name))
