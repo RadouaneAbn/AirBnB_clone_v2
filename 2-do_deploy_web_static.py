@@ -8,7 +8,6 @@ import re
 
 env.hosts = ['52.3.252.27', '54.160.117.45']
 env.user = "ubuntu"
-import time
 
 
 def do_pack():
