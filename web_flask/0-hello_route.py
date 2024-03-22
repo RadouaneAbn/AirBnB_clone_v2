@@ -7,6 +7,7 @@ from flask import Flask, abort, render_template
 
 app = Flask(__name__)
 
+
 @app.route("/", strict_slashes=False)
 def home():
     """Route to display 'Hello HBNB!'."""
