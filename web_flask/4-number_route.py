@@ -37,7 +37,7 @@ def greet_python(text="is cool"):
 def is_number(n):
     """Route to display '<n> is a number' if n is a number"""
     if n.isdigit():
-        return "{} is a Number".format(n)
+        return "{} is a number".format(n)
     else:
         abort(404)
 
