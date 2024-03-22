@@ -30,7 +30,7 @@ def greet_c(text):
 @app.route("/python/<text>", strict_slashes=False)
 def greet_python(text="is cool"):
     """Route to display 'python ' followed by a string"""
-    return "python {}".format(text.replace("_", " "))
+    return "Python {}".format(text.replace("_", " "))
 
 
 if __name__ == "__main__":
