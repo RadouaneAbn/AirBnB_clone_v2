@@ -17,7 +17,7 @@ class DBStorage:
     __session = None
 
     def close(self):
-        self.__session.remove()
+        self.__session.close()
 
     def __init__(self):
         """ Create an engine """
