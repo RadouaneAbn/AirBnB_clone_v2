@@ -8,6 +8,10 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
+    def close(self):
+        """"""
+        self.reload()
+
     def all(self, cls=None):
         """Returns the list of objects one type of class"""
         if cls:

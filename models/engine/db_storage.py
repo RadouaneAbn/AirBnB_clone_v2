@@ -3,7 +3,6 @@
 from sqlalchemy import (create_engine)
 from sqlalchemy.orm import scoped_session, sessionmaker
 from models.base_model import Base
-from sqlalchemy import inspect
 from os import environ
 from models.state import State
 from models.city import City
@@ -16,6 +15,9 @@ from models.amenity import Amenity
 class DBStorage:
     __engine = None
     __session = None
+
+    def close(self):
+        self.__session.remove()
 
     def __init__(self):
         """ Create an engine """
@@ -32,9 +34,6 @@ class DBStorage:
 
     def reload(self):
         """ Create a Session """
-        from models.base_model import BaseModel
-        from models.city import City
-        from models.state import State
         Base.metadata.create_all(self.__engine)
         session_factory = sessionmaker(
             bind=self.__engine, expire_on_commit=False)
@@ -70,7 +69,7 @@ class DBStorage:
         dictionary = {}
 
         if cls:
-            inst_class = classes[cls]
+            inst_class = classes[cls.__name__]
             for inst in self.__session.query(inst_class).all():
                 key = f"{inst_class.__name__}.{inst.id}"
                 dictionary[key] = inst
