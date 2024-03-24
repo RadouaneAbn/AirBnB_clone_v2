@@ -34,7 +34,11 @@ html_contain="<html>\n\
 
 echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html"
 
-sudo ln -sf "/data/web_static/releases/test/" "/data/web_static/current"
+if ! test -h "/data/web_static/current"; then
+        echo rm "/data/web_static/current"
+fi
+
+sudo ln -s "/data/web_static/releases/test/" "/data/web_static/current"
 
 sudo chown -R ubuntu:ubuntu "/data/"
 
