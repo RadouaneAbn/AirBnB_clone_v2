@@ -23,8 +23,10 @@ def teardown_db(exception):
 def states_list():
     """ This function displays an HTML page """
     from models.state import State
+    state_insts = get_db(State).values()
+    state_insts = sorted(state_insts, key=lambda State: State.name)
     return render_template("7-states_list.html",
-                           list_state_inst=get_db(State).values())
+                           list_state_inst=state_insts)
 
 
 if __name__ == "__main__":
