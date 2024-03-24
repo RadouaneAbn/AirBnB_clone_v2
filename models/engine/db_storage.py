@@ -69,9 +69,9 @@ class DBStorage:
         dictionary = {}
 
         if cls:
-            inst_class = classes[cls.__name__]
-            for inst in self.__session.query(inst_class).all():
-                key = f"{inst_class.__name__}.{inst.id}"
+            # inst_class = classes[cls.__name__]
+            for inst in self.__session.query(cls).all():
+                key = f"{cls.__name__}.{inst.id}"
                 dictionary[key] = inst
         else:
             for cls in classes.values():
