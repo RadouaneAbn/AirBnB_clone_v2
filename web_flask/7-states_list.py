@@ -1,31 +1,34 @@
 #!/usr/bin/python3
-"""Script that starts a Flask web application:
-    - starts web application must be listening on 0.0.0.0, port 5000
-    - uses storage for fetching data from the storage engine
-    (FileStorage or DBStorage)
 """
-from models.state import State
-from models import storage
+    This model starts a Flask web application
+"""
 from flask import Flask, render_template
-
+from models import storage
+from models.state import State
 
 app = Flask(__name__)
 app.url_map.strict_slashes = False
 
 
-@app.route('/states_list')
-def states_list():
-    """displays HTML page with States and their ids"""
-    all_states = storage.all(State).values()
-    return render_template('7-states_list.html', states=all_states)
+def get_db(cls=None):
+    """ This function returns data from storage db/fs """
+    return storage.all(cls)
 
 
 @app.teardown_appcontext
-def close_storage(exception=None):
-    """Method to perform cleanup tasks to release resources associated
-    with application context"""
+def teardown_db(exception=None):
+    """ This function closes the current SQLAlchemy Session """
     storage.close()
 
 
-if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0')
+@app.route("/states_list")
+def states_list():
+    """ This function displays an HTML page """
+    state_insts = get_db(State).values()
+    state_insts = sorted(state_insts, key=lambda state: state.name)
+    return render_template("7-states_list.html",
+                           list_state_inst=state_insts)
+
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0")
