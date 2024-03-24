@@ -1,21 +1,19 @@
 #!/usr/bin/python3
-""" This script contains a function that
+""" module doc
 """
-from fabric.api import *
-import os
-import time
+from fabric.api import task, local
+from datetime import datetime
 
 
+@task
 def do_pack():
-    """ This script generates a .tgz archive from contents of the
-        web_static folder
+    """ method doc
+        sudo fab -f 1-pack_web_static.py do_pack
     """
-    if not os.path.exists("versions"):
-        os.mkdir("versions")
-    archive = "versions/web_static_{}.tgz".format(
-            time.strftime("%Y%m%d%H%M%S"))
-    try:
-        local("tar -cvzf {} web_static".format(archive))
-        return archive
-    except Exception:
-        return None
+    formatted_dt = datetime.now().strftime('%Y%m%d%H%M%S')
+    mkdir = "mkdir -p versions"
+    path = "versions/web_static_{}.tgz".format(formatted_dt)
+    print("Packing web_static to {}".format(path))
+    if local("{} && tar -cvzf {} web_static".format(mkdir, path)).succeeded:
+        return path
+    return None

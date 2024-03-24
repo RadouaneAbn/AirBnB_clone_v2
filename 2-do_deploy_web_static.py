@@ -1,44 +1,50 @@
 #!/usr/bin/python3
-""" This script contains a function that
+""" module doc
 """
-from fabric.api import *
+from fabric.api import task, local, env, put, run
+from datetime import datetime
 import os
-import time
-import re
 
-env.hosts = ['52.3.252.27', '54.160.117.45']
-env.user = "ubuntu"
+env.hosts = ['18.207.1.87', '52.206.189.175']
 
 
+@task
 def do_pack():
-    """ This script generates a .tgz archive from contents of the
-        web_static folder
+    """ method doc
+        sudo fab -f 1-pack_web_static.py do_pack
     """
-    local("mkdir -p versions")
-    archive = "versions/web_static_{}.tgz".format(
-            time.strftime("%Y%m%d%H%M%S"))
-    try:
-        local("tar -cvzf {} web_static".format(archive))
-        return archive
-    except Exception:
-        return None
+    formatted_dt = datetime.now().strftime('%Y%m%d%H%M%S')
+    mkdir = "mkdir -p versions"
+    path = "versions/web_static_{}.tgz".format(formatted_dt)
+    print("Packing web_static to {}".format(path))
+    if local("{} && tar -cvzf {} web_static".format(mkdir, path)).succeeded:
+        return path
+    return None
 
 
+@task
 def do_deploy(archive_path):
-    """ This function destributes an archive to my web servers
+    """ method doc
+        fab -f 2-do_deploy_web_static.py do_deploy:
+        archive_path=versions/web_static_20231004201306.tgz
+        -i ~/.ssh/id_rsa -u ubuntu
     """
-    if not os.path.exists(archive_path):
+    try:
+        if not os.path.exists(archive_path):
+            return False
+        fn_with_ext = os.path.basename(archive_path)
+        fn_no_ext, ext = os.path.splitext(fn_with_ext)
+        dpath = "/data/web_static/releases/"
+        put(archive_path, "/tmp/")
+        run("rm -rf {}{}/".format(dpath, fn_no_ext))
+        run("mkdir -p {}{}/".format(dpath, fn_no_ext))
+        run("tar -xzf /tmp/{} -C {}{}/".format(fn_with_ext, dpath, fn_no_ext))
+        run("rm /tmp/{}".format(fn_with_ext))
+        run("mv {0}{1}/web_static/* {0}{1}/".format(dpath, fn_no_ext))
+        run("rm -rf {}{}/web_static".format(dpath, fn_no_ext))
+        run("rm -rf /data/web_static/current")
+        run("ln -s {}{}/ /data/web_static/current".format(dpath, fn_no_ext))
+        print("New version deployed!")
+        return True
+    except Exception:
         return False
-
-    file_name = re.search(r"([^\/]*)\..*$", archive_path)[1]
-    releases_path = f"/data/web_static/releases/{file_name}"
-
-    put(archive_path, "/tmp/")
-    run("sudo mkdir -p {}".format(releases_path))
-    run("sudo tar -zxf /tmp/{}.tgz -C {}".format(file_name, releases_path))
-    run("sudo cp -rf {}/web_static/* {}".format(releases_path, releases_path))
-    run("sudo rm -r {}/web_static".format(releases_path))
-    run("sudo rm -rf /data/web_static/current")
-    run("sudo ln -s {} /data/web_static/current".format(releases_path))
-    print("New version deployed!")
-    return True
