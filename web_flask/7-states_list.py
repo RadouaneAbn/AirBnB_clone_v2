@@ -4,6 +4,7 @@
 """
 from flask import Flask, render_template
 from models import storage
+from models.state import State
 
 app = Flask(__name__)
 
@@ -22,7 +23,6 @@ def teardown_db(exception):
 @app.route("/states_list", strict_slashes=False)
 def states_list():
     """ This function displays an HTML page """
-    from models.state import State
     state_insts = get_db(State).values()
     state_insts = sorted(state_insts, key=lambda state: state.name)
     return render_template("7-states_list.html",
