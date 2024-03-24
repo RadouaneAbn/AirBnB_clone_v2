@@ -7,6 +7,7 @@ from models import storage
 from models.state import State
 
 app = Flask(__name__)
+app.url_map.strict_slashes = False
 
 
 def get_db(cls=None):
@@ -15,12 +16,12 @@ def get_db(cls=None):
 
 
 @app.teardown_appcontext
-def teardown_db(exception):
+def teardown_db(exception=None):
     """ This function closes the current SQLAlchemy Session """
     storage.close()
 
 
-@app.route("/states_list", strict_slashes=False)
+@app.route("/states_list")
 def states_list():
     """ This function displays an HTML page """
     state_insts = get_db(State).values()
