@@ -10,6 +10,7 @@ from models.user import User
 from models.place import Place
 from models.review import Review
 from models.amenity import Amenity
+from sqlalchemy import exc, event, select
 
 
 class DBStorage:
@@ -28,9 +29,7 @@ class DBStorage:
         self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
             mysql_user, mysql_password, mysql_host, mysql_db),
             pool_pre_ping=True)
-
-        if environ.get('HBNB_ENV') == 'test':
-            Base.metadata.drop_all(bind=self.__engine)
+        
 
     def reload(self):
         """ Create a Session """
@@ -39,6 +38,9 @@ class DBStorage:
             bind=self.__engine, expire_on_commit=False)
         Session = scoped_session(session_factory)
         self.__session = Session()
+
+        if environ.get('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(bind=self.__engine)
 
     def new(self, obj):
         """ Add new inst into Session """
