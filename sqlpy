@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# update repository
+sudo apt-get update
+
+# 
+pip3 install sqlalchemy
+sudo apt-get install pkg-config
+sudo apt-get install python3-dev default-libmysqlclient-dev build-essential
+pip install mysqlclient

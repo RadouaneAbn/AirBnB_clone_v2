@@ -1,99 +1,106 @@
 #!/usr/bin/python3
-"""This module defines a class to manage file storage for hbnb clone"""
-from models.user import User
-from models.place import Place
+""" db_storage Module"""
+from sqlalchemy import (create_engine)
+from sqlalchemy.orm import scoped_session, sessionmaker
+from models.base_model import Base
+from os import environ
 from models.state import State
 from models.city import City
-from models.amenity import Amenity
+from models.user import User
+from models.place import Place
 from models.review import Review
-from models.base_model import Base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, scoped_session
-from os import getenv
+from models.amenity import Amenity
+from sqlalchemy import exc, event, select
 
 
 class DBStorage:
-    """Class Docs"""
-
     __engine = None
     __session = None
 
+    def close(self):
+        self.__session.close()
+
     def __init__(self):
-        """Function Docs"""
-        hb_user = getenv("HBNB_MYSQL_USER")
-        hb_pwd = getenv("HBNB_MYSQL_PWD")
-        hb_host = getenv("HBNB_MYSQL_HOST")
-        hb_db = getenv("HBNB_MYSQL_DB")
-        hb_env = getenv("HBNB_ENV")
-
-        self.__engine = create_engine(
-            f"mysql+mysqldb://{hb_user}:{hb_pwd}@{hb_host}/{hb_db}",
-            pool_pre_ping=True,
-        )
-
-        if hb_env == "test":
-            Base.metadata.drop_all(self.__engine)
+        """ Create an engine """
+        mysql_user = environ.get('HBNB_MYSQL_USER')
+        mysql_password = environ.get('HBNB_MYSQL_PWD')
+        mysql_host = environ.get('HBNB_MYSQL_HOST')
+        mysql_db = environ.get('HBNB_MYSQL_DB')
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.format(
+            mysql_user, mysql_password, mysql_host, mysql_db),
+            pool_pre_ping=True)
+        
 
     def reload(self):
-        """ reload method """
+        """ Create a Session """
         Base.metadata.create_all(self.__engine)
-        Session = scoped_session(
-            sessionmaker(bind=self.__engine, expire_on_commit=False)
-        )
+        session_factory = sessionmaker(
+            bind=self.__engine, expire_on_commit=False)
+        Session = scoped_session(session_factory)
         self.__session = Session()
 
-    def all(self, cls=None, id=None):
-        """
-        Query all classes or specific one by ID
-        """
-        allClasses = [User, Place, State, City, Amenity, Review]
-        result = {}
-
-        if cls is not None:
-            if id is not None:
-                obj = self.__session.query(cls).get(id)
-                if obj is not None:
-                    ClassName = obj.__class__.__name__
-                    keyName = ClassName + "." + str(obj.id)
-                    result[keyName] = obj
-            else:
-                for obj in self.__session.query(cls).all():
-                    ClassName = obj.__class__.__name__
-                    keyName = ClassName + "." + str(obj.id)
-                    result[keyName] = obj
-        else:
-            for clss in allClasses:
-                if id is not None:
-                    obj = self.__session.query(clss).get(id)
-                    if obj is not None:
-                        ClassName = obj.__class__.__name__
-                        keyName = ClassName + "." + str(obj.id)
-                        result[keyName] = obj
-                else:
-                    for obj in self.__session.query(clss).all():
-                        ClassName = obj.__class__.__name__
-                        keyName = ClassName + "." + str(obj.id)
-                        result[keyName] = obj
-        return result
-
-    def search(self, cls, id):
-        """ def doc """
-        data = self.all(cls)
+        if environ.get('HBNB_ENV') == 'test':
+            Base.metadata.drop_all(bind=self.__engine)
 
     def new(self, obj):
-        """add new obj"""
-        if obj:
-            self.__session.add(obj)
+        """ Add new inst into Session """
+        attrs = obj.to_dict()
+        cls = obj.__class__
+        new_instance = cls()
+        for key, value in attrs.items():
+            if key == "__class__":
+                continue
+            setattr(new_instance, key, value)
+        self.__session.add(new_instance)
 
     def save(self):
-        """commit all changes"""
+        """ Commit the changes into the data base """
         self.__session.commit()
 
-    def delete(self, obj=None):
-        """delete from the current database session"""
-        if obj:
-            self.__session.delete(obj)
+    def all(self, cls=None):
+        """ Return a dictionary of instances """
+        classes = {
+            "State": State,
+            "City": City,
+            "User": User,
+            "Place": Place,
+            "Review": Review,
+            "Amenity": Amenity,
+        }
 
-    def close(self):
-        """doc meth"""
-        self.__session.close()
+        dictionary = {}
+
+        if cls:
+            # inst_class = classes[cls.__name__]
+            for inst in self.__session.query(cls).all():
+                key = f"{cls.__name__}.{inst.id}"
+                dictionary[key] = inst
+        else:
+            for cls in classes.values():
+                for inst in self.__session.query(cls).all():
+                    key = f"{cls.__name__}.{inst.id}"
+                    dictionary[key] = inst
+        return dictionary
+
+    def delete(self, obj=None):
+        """ Deletes an instance from a database """
+        classes = {
+            "states": State,
+            "cities": City,
+            "users": User,
+            "places": Place,
+            "Review": Review,
+            "Amenity": Amenity,
+        }
+        if not obj:
+            return
+
+        table = Base.metadata.tables[obj.__tablename__]
+        cls = classes[str(table)]
+        wanted_row = self.__session.query(cls)\
+            .where(cls.id == obj.id).one_or_none()
+        if not wanted_row:
+            return
+
+        self.__session.delete(wanted_row)
+        self.__session.commit()

@@ -1,34 +1,37 @@
 #!/usr/bin/python3
-""" module doc """
-from flask import Flask
+"""
+This module starts a Flask web application
+"""
+
+from flask import Flask, abort, render_template
 
 app = Flask(__name__)
 
 
 @app.route("/", strict_slashes=False)
-def hello():
-    """ def doc """
+def home():
+    """Route to display 'Hello HBNB!'."""
     return "Hello HBNB!"
 
 
 @app.route("/hbnb", strict_slashes=False)
 def hbnb():
-    """ def doc """
+    """Route to display 'HBNB'."""
     return "HBNB"
 
 
-@app.route('/c/<text>', strict_slashes=False)
-def c(text):
-    """ def doc """
-    return 'c {}'.format(text.replace("_", " "))
+@app.route("/c/<text>", strict_slashes=False)
+def greet_c(text):
+    """Route to display 'C ' followed by string"""
+    return "C {}".format(text.replace("_", " "))
 
 
-@app.route('/python', defaults={'text': 'is cool'}, strict_slashes=False)
-@app.route('/python/<text>', strict_slashes=False)
-def python(text):
-    """ def doc """
-    return 'Python {}'.format(text.replace("_", " "))
+@app.route("/python", strict_slashes=False)
+@app.route("/python/<text>", strict_slashes=False)
+def greet_python(text="is cool"):
+    """Route to display 'python ' followed by a string"""
+    return "Python {}".format(text.replace("_", " "))
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0")

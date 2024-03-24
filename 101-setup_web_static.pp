@@ -1,29 +1,71 @@
-# instal and configure nginx
-exec {'update':
-  command => '/usr/bin/apt-get update',
+# This puppet file sets up a web server
+
+exec { '/usr/bin/env apt -y update' : }
+
+-> package {'nginx':
+  ensure => 'present',
 }
--> package { 'nginx':
-  ensure => installed,
+
+-> file { '/data':
+  ensure => 'directory',
 }
--> exec { 'run1':
-  command => '/usr/bin/mkdir -p "/data/web_static/releases/test/" "/data/web_static/shared/"',
+
+-> file { '/data/web_static':
+  ensure => 'directory',
 }
--> exec { 'run2':
-  command => '/usr/bin/echo "Hi!" | sudo tee /data/web_static/releases/test/index.html > /dev/null',
+
+-> file { '/data/web_static/releases':
+  ensure => 'directory',
 }
--> exec { 'run3':
-  command => '/usr/bin/rm -rf /data/web_static/current',
+
+-> file { '/data/web_static/shared':
+  ensure => 'directory',
 }
--> exec { 'run4':
-  command => '/usr/bin/ln -s /data/web_static/releases/test/ /data/web_static/current',
+
+-> file { '/data/web_static/releases/test':
+  ensure => 'directory',
 }
--> exec { 'run5':
-  command => '/usr/bin/chown -R ubuntu:ubuntu /data/',
+
+$ctn = "<html>
+  <head>
+  </head>
+  <body>
+    Holberton School
+  </body>
+</html>"
+
+file { '/data/web_static/releases/test/index.html':
+  ensure  => 'file',
+  content => $ctn,
 }
--> exec { 'hbnb_static':
-  command => 'sudo sed -i "/^server {/a \ \n\tlocation \/hbnb_static {alias /data/web_static/current/;index index.html;}" /etc/nginx/sites-enabled/default',
-  provider => shell,
+
+-> file {'/data/web_static/current':
+  ensure => 'link',
+  target => '/data/web_static/releases/test',
 }
--> exec { 'run6':
-  command => '/usr/sbin/service nginx restart',
+
+-> exec { 'chown -R ubuntu:ubuntu /data/':
+  path => '/usr/bin/:/usr/local/bin/:/bin/'
+}
+
+-> file { '/var/www':
+  ensure => 'directory',
+}
+
+-> file { '/var/www/html':
+  ensure => 'directory',
+}
+
+-> file { '/var/www/html/index.html':
+  ensure  => 'present',
+  content => $ctn,
+}
+
+exec { 'nginx_conf':
+  command => 'sed -i "29i\ location /hbnb_static/ {\n\t  alias /data/web_static/current/;}" /etc/nginx/sites-enabled/default',
+  path    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
+}
+
+-> service { 'nginx':
+  ensure => running,
 }

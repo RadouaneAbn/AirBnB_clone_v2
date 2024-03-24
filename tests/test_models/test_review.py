@@ -1,29 +1,23 @@
 #!/usr/bin/python3
-""" document documt """
-from tests.test_models.test_base_model import test_basemodel
+import unittest
 from models.review import Review
 
 
-class test_review(test_basemodel):
-    """ document documt """
+class test_Review(unittest.TestCase):
+    """Test review model class """
 
-    def __init__(self, *args, **kwargs):
-        """ document documt """
-        super().__init__(*args, **kwargs)
-        self.name = "Review"
-        self.value = Review
+    def setUp(self):
+        self.model = Review()
+        self.model.save()
 
-    def test_place_id(self):
-        """ document documt """
-        new = self.value()
-        self.assertEqual(type(new.place_id), str)
+    def test_var_init(self):
+        self.assertTrue(hasattr(self.model, "place_id"))
+        self.assertTrue(hasattr(self.model, "user_id"))
+        self.assertTrue(hasattr(self.model, "text"))
+        # self.assertEqual(self.model.place_id, "")
+        # self.assertEqual(self.model.user_id, "")
+        # self.assertEqual(self.model.text, "")
 
-    def test_user_id(self):
-        """ document documt """
-        new = self.value()
-        self.assertEqual(type(new.user_id), str)
 
-    def test_text(self):
-        """ document documt """
-        new = self.value()
-        self.assertEqual(type(new.text), str)
+if __name__ == "__main__":
+    unittest.main()

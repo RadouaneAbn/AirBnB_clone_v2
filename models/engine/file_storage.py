@@ -8,33 +8,19 @@ class FileStorage:
     __file_path = 'file.json'
     __objects = {}
 
-    @property
-    def cities(self):
-        """Retruns Cities in state"""
-
-    def delete(self, obj=None):
-        """loop through __objects, compare each value
-        of key with cls argument wich is object
-        """
-        if obj:
-            id = obj.to_dict()["id"]
-            className = obj.to_dict()["__class__"]
-            keyName = className+"."+id
-            if keyName in FileStorage.__objects:
-                del (FileStorage.__objects[keyName])
-                self.save()
+    def close(self):
+        """"""
+        self.reload()
 
     def all(self, cls=None):
-        """Returns a dictionary of models currently in storage"""
-        print_dict = {}
+        """Returns the list of objects one type of class"""
         if cls:
-            className = cls.__name__
-            for k, v in FileStorage.__objects.items():
-                if k.split('.')[0] == className:
-                    print_dict[k] = v
-            return print_dict
-        else:
-            return FileStorage.__objects
+            new_dict = {}
+            for k, v in self.__objects.items():
+                if cls == v.__class__ or cls == v.__class__.__name__:
+                    new_dict[k] = v
+            return new_dict
+        return self.__objects
 
     def new(self, obj):
         """Adds new object to storage dictionary"""
@@ -52,12 +38,13 @@ class FileStorage:
     def reload(self):
         """Loads storage dictionary from file"""
         from models.base_model import BaseModel
-        from models.user import User
-        from models.place import Place
         from models.state import State
         from models.city import City
+        from models.user import User
         from models.amenity import Amenity
         from models.review import Review
+        from models.place import Place
+
         classes = {
                     'BaseModel': BaseModel, 'User': User, 'Place': Place,
                     'State': State, 'City': City, 'Amenity': Amenity,
@@ -72,6 +59,11 @@ class FileStorage:
         except FileNotFoundError:
             pass
 
-    def close(self):
-        """doc meth"""
-        self.reload()
+    def delete(self, obj=None):
+        """Delete obj from __objects if the give obj is inside"""
+        if obj:
+            key = f"{obj.__class__.__name__}.{obj.id}"
+            try:
+                del self.__objects[key]
+            except KeyError:
+                pass

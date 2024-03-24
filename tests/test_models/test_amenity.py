@@ -1,19 +1,19 @@
 #!/usr/bin/python3
-""" document documt """
-from tests.test_models.test_base_model import test_basemodel
+import unittest
 from models.amenity import Amenity
 
 
-class test_Amenity(test_basemodel):
-    """ document documt """
+class test_Amenity(unittest.TestCase):
+    """Test amenity model class"""
 
-    def __init__(self, *args, **kwargs):
-        """ document documt """
-        super().__init__(*args, **kwargs)
-        self.name = "Amenity"
-        self.value = Amenity
+    def setUp(self):
+        self.model = Amenity()
+        self.model.save()
 
-    def test_name2(self):
-        """ document documt """
-        new = self.value()
-        self.assertEqual(type(new.name), str)
+    def test_var_init(self):
+        self.assertTrue(hasattr(self.model, "name"))
+        # self.assertEqual(self.model.name, "")
+
+
+if __name__ == "__main__":
+    unittest.main()

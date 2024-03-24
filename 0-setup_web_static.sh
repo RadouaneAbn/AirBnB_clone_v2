@@ -1,37 +1,56 @@
 #!/usr/bin/env bash
-# sets up your web servers for the deployment of web_static
+# This script sets up a web server
 
-trap 'exit 0' ERR
+sudo apt-get -y update > /dev/null
+sudo apt-get -y install nginx > /dev/null
 
-if ! command -v nginx &> /dev/null; then
-    sudo apt update
-    sudo apt install nginx -y
+if ! test -d "/data"; then
+        sudo mkdir "/data"
 fi
-sudo mkdir -p "/data/web_static/releases/test/"
-sudo mkdir -p "/data/web_static/shared/"
 
-body_content="Holberton School Web site under construction!"
-current_date=$(date +"%Y-%m-%d %H:%M:%S")
-html_content="<html>
-  <head></head>
-  <body>$body_content</body>
-  <p>Generated on: $current_date</p>
+if ! test -d "/data/web_static"; then
+        sudo mkdir "/data/web_static"
+fi
+
+if ! test -d "/data/web_static/releases"; then
+        sudo mkdir "/data/web_static/releases"
+fi
+
+if ! test -d "/data/web_static/shared"; then
+        sudo mkdir "/data/web_static/shared"
+fi
+
+if ! test -d "/data/web_static/releases/test"; then
+        sudo mkdir "/data/web_static/releases/test"
+fi
+
+html_contain="<html>\n\
+  <head>\n\
+  </head>\n\
+  <body>\n\
+    Holberton School\n\
+  </body>\n\
 </html>"
 
-echo "$html_content" | sudo tee /data/web_static/releases/test/index.html > /dev/null
+echo -e "$html_contain" | sudo tee -a "/data/web_static/releases/test/index.html"
 
-rm -rf /data/web_static/current
-ln -sf /data/web_static/releases/test/ /data/web_static/current
+if ! test -h "/data/web_static/current"; then
+        echo rm "/data/web_static/current"
+fi
 
-sudo chown -R ubuntu:ubuntu /data/
+sudo ln -s "/data/web_static/releases/test/" "/data/web_static/current"
 
-sudo wget -q -O /etc/nginx/sites-available/default http://exampleconfig.com/static/raw/nginx/ubuntu20.04/etc/nginx/sites-available/default
-config="/etc/nginx/sites-available/default"
-echo 'Holberton School Hello World!' | sudo tee /var/www/html/index.html > /dev/null
-sudo sed -i '/^}$/i \ \n\tlocation \/redirect_me {return 301 https:\/\/www.youtube.com\/watch?v=QH2-TGUlwu4;}' $config
-sudo sed -i '/^}$/i \ \n\tlocation @404 {return 404 "Ceci n'\''est pas une page\\n";}' $config
-sudo sed -i 's/=404/@404/g' $config
-sudo sed -i "/^server {/a \ \tadd_header X-Served-By $HOSTNAME;" $config
-sudo sed -i '/^server {/a \ \n\tlocation \/hbnb_static {alias /data/web_static/current/;index index.html;}' $config
+sudo chown -R ubuntu:ubuntu "/data/"
+
+config="\
+        location /hbnb_static/ {\n\
+                alias /data/web_static/current/;\n\
+                index index.html;\n\
+                }\n\
+"
+
+if ! grep -q "location /hbnb_static/" "/etc/nginx/sites-available/default"; then
+        sudo sed -i "47i\\$config" "/etc/nginx/sites-available/default"
+fi
 
 sudo service nginx restart
