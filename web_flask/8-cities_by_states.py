@@ -37,6 +37,9 @@ def cities_by_states():
     """ This function displays an HTML page """
     state_insts = get_db(State)
     state_insts = sorted(state_insts, key=lambda state: state.name)
+    if os.getenv('HBNB_TYPE_STORAGE') != "db":
+        for state in state_insts:
+            state['cities'] = state.cities
     return render_template("8-cities_by_states.html",
                            states=state_insts)
 
