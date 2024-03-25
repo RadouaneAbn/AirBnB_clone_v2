@@ -27,7 +27,6 @@ def teardown_db(exception=None):
 def states_list():
     """ This function displays an HTML page """
     state_insts = get_db(State)
-    state_insts = sorted(state_insts, key=lambda state: state.name)
     return render_template("7-states_list.html",
                            states=state_insts)
 
@@ -41,4 +40,4 @@ def cities_by_states():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000)
