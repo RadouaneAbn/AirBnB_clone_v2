@@ -17,8 +17,8 @@
         <H1>Not found!</H1>
         {% endif %}
         {% else %}
+        <H1>States</H1>
         <UL>
-            <H1>States</H1>
             {% for state in states | sort(attribute='name') %}
             <LI>{{ state.id }}: <B>{{ state.name }}</B></LI>
             {% endfor %}
